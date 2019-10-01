@@ -34,8 +34,8 @@ class RedditWrapper:
   def clearcache(self):
     dbg("Clearing cache")
     now = datetime.now()
-    for sub in self.cache:
-      for key in self.cache[sub]:
+    for sub in list(self.cache):
+      for key in list(self.cache[sub]):
         delta = (now - self.cache[sub][key]["time"]).days
         if delta >= 3: del self.cache[sub][key]
 
