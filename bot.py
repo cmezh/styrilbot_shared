@@ -22,11 +22,6 @@ def getMessage():
   bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
   return "!", 200
 
-#@bot.message_handler(commands=["start"])
-#def com_start(message):
-#  dbg("Got start command")
-#  bot.send_message(message.chat.id, "Ты чё пёс я щас те флешку зашью")
-
 @bot.message_handler(commands=["r"])
 def com_r(message):
   dbg("Got r command: %s" % message.text)

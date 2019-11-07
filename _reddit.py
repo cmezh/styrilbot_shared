@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import config
 from _util import dbg, mediamatch, gfycat, vreddit
 from _pastebin import pastebin
