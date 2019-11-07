@@ -11,7 +11,8 @@ pastebin_userkey - токен pastebin, берется через cli
 
 Как получить reddit_token
 import praw
-reddit = praw.Reddit(client_id=reddit_id, client_secret=resdit_secret, redirect_uri='http://localhost:8080', user_agent='anything you want') print(reddit.auth.url(['identity', 'read'], '...', 'permanent')) 
+reddit = praw.Reddit(client_id=reddit_id, client_secret=resdit_secret, redirect_uri='http://localhost:8080', user_agent='anything you want')
+print(reddit.auth.url(['identity', 'read'], '...', 'permanent')) 
 
 Открываем ссылку, авторизуемся, нас перебрасывает на localhost, из адреса берем значение параметра code.
 
