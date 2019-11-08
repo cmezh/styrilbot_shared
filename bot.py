@@ -7,7 +7,6 @@ import telebot
 from _reddit import RedditWrapper, RedditException
 from os import environ
 from flask import Flask, request
-from random import random
 
 dbg("Creating TeleBot instance")
 bot = telebot.TeleBot(config.telegram_token, threaded=False)
@@ -18,17 +17,12 @@ server = Flask(__name__)
 
 @server.route("/bot", methods=['POST'])
 def getMessage():
-#  dbg("Got new request to server")
   bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
   return "!", 200
 
 @bot.message_handler(commands=["r"])
 def com_r(message):
   dbg("Got r command: %s" % message.text)
-  if random() < 0.01:
-    dbg("Got random match")
-    bot.send_message(message.chat.id, "Ты чё пёс я щас те флешку зашью", reply_to_message_id=message.message_id)
-    return
   try:
     media = reddit.process(message.text)
     sendmedia(bot, media, message)
@@ -58,8 +52,7 @@ def com_me(message):
   if len(message.text.split(" ")) > 1:
     try:
       bot.delete_message(message.chat.id, message.message_id)
-      sender = message.from_user.first_name
-      if message.from_user.last_name: sender += " %s" % message.from_user.last_name
+      sender = "%s %s" % (message.from_user.first_name, message.from_user.last_name) if message.from_user.last_name else message.from_user.first_name
       msg = "* %s %s" % (sender, " ".join(message.text.split(" ")[1:]))
       bot.send_message(message.chat.id, msg)
     except telebot.apihelper.ApiException:
