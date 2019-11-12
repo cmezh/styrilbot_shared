@@ -76,7 +76,7 @@ class RedditWrapper:
                                  "time": datetime.fromtimestamp(json_raw[sub][key]["time"]) }
 
   def mkreddit(self):
-    dbg("Creating Reddit instance")
+    dbg("mkreddit function entrypoint")
     return Reddit(client_id=self.client_id,
                   client_secret=self.client_secret,
                   refresh_token=self.refresh_token,

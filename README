@@ -6,6 +6,10 @@ reddit_secret - секрет приложения reddit
 reddit_token - токен приложения реддит, получается после авторизации приложения
 pastebin_devkey - секрет pastebin, берется здесь: https://pastebin.com/api
 pastebin_userkey - токен pastebin, берется через cli
+bind_addr - ip, куда будет биндиться сервер (flask)
+default_port - порт flask, по умолчанию берет переменную окружения PORT, если отсутствует - берет значение из конфига
+server_route - адрес, по которому сервер отслеживает сообщения
+webhook_url - url вебхука (callback телеграма)
 
 Приложение reddit регистрировать как веб-приложение, в качестве ссылки указывать http://localhost:8080
 
