@@ -5,22 +5,24 @@ from _util import dbg, sendmedia
 import config
 from telebot.apihelper import ApiException as TelegramException
 from _reddit import RedditException
-from random import random
 
 class BotFunc():
   def __init__(self, bot, reddit):
     self.bot = bot
     self.reddit = reddit
-    self.func = [{"function": self.com_r, "filters": {"commands": ["r"]}},
-                 {"function": self.com_d, "filters": {"commands": ["d"]}},
-                 {"function": self.com_me, "filters": {"commands": ["me"]}}]
+    self.func = [{"function": self.com_r,
+                  "filters": {"commands": ["r"]}},
+                 {"function": self.com_d,
+                  "filters": {"commands": ["d"]}},
+                 {"function": self.com_me,
+                  "filters": {"commands": ["me"]}},
+                 {"function": self.eraser,
+                  "filters": {"content_types": ["text"]}}]
+
+    self.eraser_match = ['someword1', 'someword2']
 
   def com_r(self, message):
     dbg("Got r command: %s" % message.text)
-    if random() < 0.01:
-      dbg("Got random match")
-      self.bot.send_message(message.chat.id, "Ты чё пёс я щас те флешку зашью", reply_to_message_id=message.message_id)
-      return
     try:
       media = self.reddit.process(message.text)
       sendmedia(self.bot, media, message)
@@ -53,3 +55,12 @@ class BotFunc():
         self.bot.send_message(message.chat.id, msg)
       except TelegramException:
         pass
+
+  def eraser(self, message):
+    for match in self.eraser_match:
+      if match.lower() in message.text.lower():
+        try:
+          self.bot.delete_message(message.chat.id, message.message_id)
+        except TelegramException:
+          pass
+        return
