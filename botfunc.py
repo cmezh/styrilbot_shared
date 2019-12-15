@@ -17,7 +17,7 @@ class BotFunc():
                  {"function": self.com_me,
                   "filters": {"commands": ["me"]}},
                  {"function": self.eraser,
-                  "filters": {"content_types": ["text"]}}]
+                  "filters": {}}]
 
     self.eraser_match = ['someword1', 'someword2']
 
@@ -57,8 +57,15 @@ class BotFunc():
         pass
 
   def eraser(self, message):
+    if message.content_type == "text":
+      exam = message.text.lower()
+    elif message.caption:
+      exam = message.caption.lower()
+    else:
+      return
+
     for match in self.eraser_match:
-      if match.lower() in message.text.lower():
+      if match.lower() in exam:
         try:
           self.bot.delete_message(message.chat.id, message.message_id)
         except TelegramException:
