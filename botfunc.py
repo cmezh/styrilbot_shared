@@ -7,19 +7,38 @@ from telebot.apihelper import ApiException as TelegramException
 from _reddit import RedditException
 
 class BotFunc():
+
+  def __mass_replace(self, source):
+    ret = source.replace("а", "a")
+    ret = ret.replace("в", "b")
+    ret = ret.replace("с", "c")
+    ret = ret.replace("е", "e")
+    ret = ret.replace("н", "h")
+    ret = ret.replace("к", "k")
+    ret = ret.replace("м", "m")
+    ret = ret.replace("о", "o")
+    ret = ret.replace("р", "p")
+    ret = ret.replace("т", "t")
+    ret = ret.replace("х", "x")
+    ret = ret.replace("у", "y")
+    return ret
+
   def __init__(self, bot, reddit):
     self.bot = bot
     self.reddit = reddit
-    self.func = [{"function": self.com_r,
+    self.func = [{"function": self.eraser,
+                  "filters": {}},
+                 {"function": self.com_r,
                   "filters": {"commands": ["r"]}},
                  {"function": self.com_d,
                   "filters": {"commands": ["d"]}},
                  {"function": self.com_me,
-                  "filters": {"commands": ["me"]}},
-                 {"function": self.eraser,
-                  "filters": {}}]
+                  "filters": {"commands": ["me"]}}]
 
-    self.eraser_match = ['someword1', 'someword2']
+    self.eraser_match = ['тееееест']
+
+    for i in range(len(self.eraser_match)):
+      self.eraser_match[i] = self.__mass_replace(self.eraser_match[i].lower())
 
   def com_r(self, message):
     dbg("Got r command: %s" % message.text)
@@ -57,15 +76,15 @@ class BotFunc():
         pass
 
   def eraser(self, message):
-    if message.content_type == "text":
-      exam = message.text.lower()
+    if message.text:
+      exam = self.__mass_replace(message.text.lower())
     elif message.caption:
-      exam = message.caption.lower()
+      exam = self.__mass_replace(message.caption.lower())
     else:
       return
 
     for match in self.eraser_match:
-      if match.lower() in exam:
+      if match in exam:
         try:
           self.bot.delete_message(message.chat.id, message.message_id)
         except TelegramException:
