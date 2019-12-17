@@ -10,5 +10,5 @@ bind_addr = "" #iface ip
 default_port = 8080
 server_route = "/bot"
 webhook_url = ""
-eraser_match = ["someword1", "someword2"]
+eraser_keywords = ["someword1", "someword2"]
 debug = True
