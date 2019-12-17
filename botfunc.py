@@ -27,7 +27,7 @@ class BotFunc():
     self.bot = bot
     self.reddit = reddit
     self.func = [{"function": self.eraser,
-                  "filters": {}},
+                  "filters": {"func": self.eraser_match}},
                  {"function": self.com_r,
                   "filters": {"commands": ["r"]}},
                  {"function": self.com_d,
@@ -35,7 +35,7 @@ class BotFunc():
                  {"function": self.com_me,
                   "filters": {"commands": ["me"]}}]
 
-    self.eraser_match = [self.__mass_replace(match.lower()) for match in config.eraser_match]
+    self.eraser_keywords = [self.__mass_replace(keyword.lower()) for keyword in config.eraser_keywords]
 
   def com_r(self, message):
     dbg("Got r command: %s" % message.text)
@@ -72,18 +72,21 @@ class BotFunc():
       except TelegramException:
         pass
 
-  def eraser(self, message):
+  def eraser_match(self, message):
     if message.text:
       exam = self.__mass_replace(message.text.lower())
     elif message.caption:
       exam = self.__mass_replace(message.caption.lower())
     else:
-      return
+      return False
 
-    for match in self.eraser_match:
-      if match in exam:
-        try:
-          self.bot.delete_message(message.chat.id, message.message_id)
-        except TelegramException:
-          pass
-        return
+    for keyword in self.eraser_keywords:
+      if keyword in exam: return True
+    return False
+
+  def eraser(self, message):
+    try:
+      self.bot.delete_message(message.chat.id, message.message_id)
+    except TelegramException:
+      pass
+    return
