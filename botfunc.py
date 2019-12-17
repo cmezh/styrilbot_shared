@@ -35,10 +35,7 @@ class BotFunc():
                  {"function": self.com_me,
                   "filters": {"commands": ["me"]}}]
 
-    self.eraser_match = ['тееееест']
-
-    for i in range(len(self.eraser_match)):
-      self.eraser_match[i] = self.__mass_replace(self.eraser_match[i].lower())
+    self.eraser_match = [self.__mass_replace(match.lower()) for match in config.eraser_match]
 
   def com_r(self, message):
     dbg("Got r command: %s" % message.text)
