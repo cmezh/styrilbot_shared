@@ -18,12 +18,7 @@ server = Flask(__name__)
 
 @server.route(config.server_route, methods=['POST'])
 def getMessage():
-#  dbg("Got new request to server")
   bot.process_new_updates([telebot.types.Update.de_json(request.stream.read().decode("utf-8"))])
-  return "!", 200
-
-@server.route("/bot", methods=["POST"])
-def oldMessage():
   return "!", 200
 
 for func in BotFunc(bot, reddit).func:
