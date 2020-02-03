@@ -26,7 +26,9 @@ class BotFunc():
   def __init__(self, bot, reddit):
     self.bot = bot
     self.reddit = reddit
-    self.func = [{"function": self.eraser,
+    self.func = [{"function": self.sendas,
+                  "filters": {"func": self.sendas_match}},
+                 {"function": self.eraser,
                   "filters": {"func": self.eraser_match}},
                  {"function": self.com_r,
                   "filters": {"commands": ["r"]}},
@@ -45,6 +47,8 @@ class BotFunc():
     except RedditException as e:
       self.bot.send_message(message.chat.id, str(e), reply_to_message_id=message.message_id)
       return
+    except TelegramException:
+      pass
 
   def com_d(self, message):
     dbg("Got d command")
@@ -89,4 +93,26 @@ class BotFunc():
       self.bot.delete_message(message.chat.id, message.message_id)
     except TelegramException:
       pass
-    return
+
+  def sendas_match(self, message):
+#    dbg(str(message.chat))
+#    dbg(str(message.from_user))
+    if message.chat.id == message.from_user.id and message.text and message.text.startswith("@"):
+      if message.chat.id in config.sendas_rights:
+        return True
+      else:
+        self.bot.send_message(message.chat.id, "Ты недостаточно прав, вот когда будешь достаточно прав -- тогда и будет тебе щастье © 2006, Рыся", reply_to_message_id=message.message_id)
+        return False
+    else:
+      return False
+
+  def sendas(self, message):
+    spl = message.text.split()
+    if len(spl) < 2: return
+    if not spl[0] in config.sendas_aliases:
+      self.bot.send_messsage(message.chat.id, "Неизвестный идентификатор %s" % spl[0], reply_to_message_id=message.message_id)
+    else:
+      try:
+        self.bot.send_message(config.sendas_aliases[spl[0]], " ".join(spl[1:]))
+      except TelegramException:
+        pass
