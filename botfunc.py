@@ -110,7 +110,7 @@ class BotFunc():
     spl = message.text.split()
     if len(spl) < 2: return
     if not spl[0] in config.sendas_aliases:
-      self.bot.send_messsage(message.chat.id, "Неизвестный идентификатор %s" % spl[0], reply_to_message_id=message.message_id)
+      self.bot.send_message(message.chat.id, "Неизвестный идентификатор %s" % spl[0], reply_to_message_id=message.message_id)
     else:
       try:
         self.bot.send_message(config.sendas_aliases[spl[0]], " ".join(spl[1:]))
