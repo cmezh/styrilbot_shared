@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from _util import dbg, sendmedia
+from _util import dbg, sendmedia, send_repeating_pic
 import config
 from telebot.apihelper import ApiException as TelegramException
 from _reddit import RedditException
+from random import random
 
 class BotFunc():
 
@@ -30,14 +31,20 @@ class BotFunc():
                   "filters": {"func": self.sendas_match}},
                  {"function": self.eraser,
                   "filters": {"func": self.eraser_match}},
+                 {"function": self.picreply,
+                  "filters": {"func": self.picreply_match}},
                  {"function": self.com_r,
                   "filters": {"commands": ["r"]}},
                  {"function": self.com_d,
                   "filters": {"commands": ["d"]}},
                  {"function": self.com_me,
-                  "filters": {"commands": ["me"]}}]
+                 "filters": {"commands": ["me"]}}]
 
     self.eraser_keywords = [self.__mass_replace(keyword.lower()) for keyword in config.eraser_keywords]
+    for i in range(len(config.picreply_data)):
+      config.picreply_data[i]["keywords"] = [self.__mass_replace(keyword.lower()) for keyword in config.picreply_data[i]["keywords"]]
+
+    self.last_picreply_match = -1
 
   def com_r(self, message):
     dbg("Got r command: %s" % message.text)
@@ -95,8 +102,6 @@ class BotFunc():
       pass
 
   def sendas_match(self, message):
-#    dbg(str(message.chat))
-#    dbg(str(message.from_user))
     if message.chat.id == message.from_user.id and message.text and message.text.startswith("@"):
       if message.chat.id in config.sendas_rights:
         return True
@@ -116,3 +121,21 @@ class BotFunc():
         self.bot.send_message(config.sendas_aliases[spl[0]], " ".join(spl[1:]))
       except TelegramException:
         pass
+
+  def picreply_match(self, message):
+    if message.text:
+      exam = self.__mass_replace(message.text.lower())
+    elif message.caption:
+      exam = self.__mass_replace(message.caption.lower())
+    else:
+      return False
+
+    for i in range(len(config.picreply_data)):
+      for keyword in config.picreply_data[i]["keywords"]:
+        if keyword in exam and random() <= config.picreply_data[i]["chance"]:
+          self.last_picreply_match = i
+          return True
+    return False
+
+  def picreply(self, message):
+    send_repeating_pic(self.bot, config.picreply_data[self.last_picreply_match]["url"], message)

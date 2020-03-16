@@ -1,10 +1,9 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import config
 import os, sys
 from requests import get, head
 from json import loads
-#from magic import from_file as magic
 
 def dbg(msg):
   if config.debug: print("--- %s" % msg)
@@ -12,7 +11,10 @@ def dbg(msg):
 def sendmedia(bot, media, message):
   dbg("send_img function entrypoint")
   cid = message.chat.id
-  msgid = message.message_id
+  if message.reply_to_message:
+    msgid = message.reply_to_message.message_id
+  else:
+    msgid = message.message_id
   url = media[0]
   ext = media[1]
 
@@ -31,6 +33,18 @@ def sendmedia(bot, media, message):
     bot.send_photo(cid, open("tmp." + ext, "rb"), reply_to_message_id=msgid)
   dbg("Removing temp file")
   os.remove("tmp." + ext)
+
+def send_repeating_pic(bot, url, message):
+  cid = message.chat.id
+  msgid = message.message_id
+  fname = url.split("/")[-1]
+
+  if not os.path.exists(fname):
+    with open(fname, "wb") as h:
+      resp = get(url).content
+      h.write(resp)
+
+  bot.send_photo(cid, open(fname, "rb"), reply_to_message_id=msgid)
 
 def mediamatch(url):
   dbg("mediamatch function entrypoint")
