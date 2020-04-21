@@ -14,10 +14,14 @@ eraser_keywords = ["someword1", "someword2"]
 sendas_rights = [12345678, 23456789] #users' ids
 sendas_aliases = {"@alias": -6542234565433,
                   "@alias2": 135798642357} #group chats' aliases and ids
-picreply_data = [{"keywords": ["testword1", "testword2"],
-                  "chance": 1.0,
-                  "url": "https://i.imgur.com/5cKpzSU.jpg"},
-                 {"keywords": ["testword3", "testword4"],
-                  "chance": 0.7,
-                  "url": "https://art1.ru/media/photo/content/hello-kitty-cafe-website-grand-cafe-H-B-1.jpg"}]
+
+autoreply_rules = [{"match_type": "text", #text|sticker_set
+                    "match_content": ["testworwd5"], #keywords
+                    "reply_type": "text", #text|picture
+                    "reply_content": "testreply5"}, #reply text
+                   {"match_type": "sticker_set", #text|sticker_set
+                    "match_content": ["Shkya"], #sticker set names
+                    "reply_type": "picture", #text|picture
+                    "reply_content": "https://i.imgur.com/5cKpzSU.jpg"}] #url
+
 debug = True

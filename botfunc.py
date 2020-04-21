@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from _util import dbg, sendmedia, send_repeating_pic
+from _util import dbg, sendmedia, send_saved_pic
 import config
 from telebot.apihelper import ApiException as TelegramException
 from _reddit import RedditException
-from random import random
 
 class BotFunc():
 
@@ -31,8 +30,8 @@ class BotFunc():
                   "filters": {"func": self.sendas_match}},
                  {"function": self.eraser,
                   "filters": {"func": self.eraser_match}},
-                 {"function": self.picreply,
-                  "filters": {"func": self.picreply_match}},
+                 {"function": self.autoreply,
+                  "filters": {"func": self.autoreply_match}},
                  {"function": self.com_r,
                   "filters": {"commands": ["r"]}},
                  {"function": self.com_d,
@@ -41,10 +40,11 @@ class BotFunc():
                  "filters": {"commands": ["me"]}}]
 
     self.eraser_keywords = [self.__mass_replace(keyword.lower()) for keyword in config.eraser_keywords]
-    for i in range(len(config.picreply_data)):
-      config.picreply_data[i]["keywords"] = [self.__mass_replace(keyword.lower()) for keyword in config.picreply_data[i]["keywords"]]
 
-    self.last_picreply_match = -1
+    for rule in config.autoreply_rules:
+      if rule["match_type"] == "text":
+        rule["match_content"] = [self.__mass_replace(keyword.lower()) for keyword in rule["match_content"]]
+    self.last_autoreply_match = -1
 
   def com_r(self, message):
     dbg("Got r command: %s" % message.text)
@@ -122,20 +122,30 @@ class BotFunc():
       except TelegramException:
         pass
 
-  def picreply_match(self, message):
+  def autoreply_match(self, message):
     if message.text:
       exam = self.__mass_replace(message.text.lower())
     elif message.caption:
       exam = self.__mass_replace(message.caption.lower())
+    elif message.sticker:
+      exam = message.sticker.set_name
     else:
       return False
 
-    for i in range(len(config.picreply_data)):
-      for keyword in config.picreply_data[i]["keywords"]:
-        if keyword in exam and random() <= config.picreply_data[i]["chance"]:
-          self.last_picreply_match = i
-          return True
+    for i in range(len(config.autoreply_rules)):
+      rule = config.autoreply_rules[i]
+      if (rule["match_type"] == "text" and (message.text or message.caption)) or \
+         (rule["match_type"] == "sticker_set" and message.sticker):
+        for keyword in rule["match_content"]:
+          if keyword in exam:
+            self.last_autoreply_match = i
+            return True
+
     return False
 
-  def picreply(self, message):
-    send_repeating_pic(self.bot, config.picreply_data[self.last_picreply_match]["url"], message)
+  def autoreply(self, message):
+    rule = config.autoreply_rules[self.last_autoreply_match]
+    if rule["reply_type"] == "text":
+      self.bot.send_message(message.chat.id, rule["reply_content"], reply_to_message_id=message.message_id)
+    elif rule["reply_type"] == "picture":
+      send_saved_pic(self.bot, rule["reply_content"], message)

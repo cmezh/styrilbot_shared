@@ -34,7 +34,7 @@ def sendmedia(bot, media, message):
   dbg("Removing temp file")
   os.remove("tmp." + ext)
 
-def send_repeating_pic(bot, url, message):
+def send_saved_pic(bot, url, message):
   cid = message.chat.id
   msgid = message.message_id
   fname = url.split("/")[-1]
