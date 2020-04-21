@@ -25,3 +25,4 @@ autoreply_rules = [{"match_type": "text", #text|sticker_set
                     "reply_content": "https://i.imgur.com/5cKpzSU.jpg"}] #url
 
 debug = True
+duduud
