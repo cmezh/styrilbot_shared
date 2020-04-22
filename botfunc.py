@@ -127,7 +127,7 @@ class BotFunc():
       exam = self.__mass_replace(message.text.lower())
     elif message.caption:
       exam = self.__mass_replace(message.caption.lower())
-    elif message.sticker:
+    elif message.sticker and message.sticker.set_name:
       exam = message.sticker.set_name
     else:
       return False
@@ -135,7 +135,7 @@ class BotFunc():
     for i in range(len(config.autoreply_rules)):
       rule = config.autoreply_rules[i]
       if (rule["match_type"] == "text" and (message.text or message.caption)) or \
-         (rule["match_type"] == "sticker_set" and message.sticker):
+         (rule["match_type"] == "sticker_set" and message.sticker and message.sticker.set_name):
         for keyword in rule["match_content"]:
           if keyword in exam:
             self.last_autoreply_match = i
