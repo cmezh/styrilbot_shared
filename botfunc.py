@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from _util import dbg, sendmedia, send_saved_pic
+from _util import dbg, sendmedia, send_saved_pic, reply
 import config
 from telebot.apihelper import ApiException as TelegramException
 from _reddit import RedditException
@@ -52,7 +52,7 @@ class BotFunc():
       media = self.reddit.process(message.text)
       sendmedia(self.bot, media, message)
     except RedditException as e:
-      self.bot.send_message(message.chat.id, str(e), reply_to_message_id=message.message_id)
+      reply(self.bot, message, "txt", str(e))
       return
     except TelegramException:
       pass
@@ -68,9 +68,9 @@ class BotFunc():
         except TelegramException:
           pass
       else:
-        self.bot.send_message(message.chat.id, "Sorry. No.", reply_to_message_id=message.message_id)
+        reply(self.bot, message, "txt", "Sorry. No.")
     else:
-      self.bot.send_message(message.chat.id, "Command should be sent in reply to message that you want to be deleted", reply_to_message_id=message.message_id)
+      reply(self.bot, message, "txt", "Command should be sent in reply to message that you want to be deleted")
 
   def com_me(self, message):
     dbg("Got me command")
@@ -106,7 +106,7 @@ class BotFunc():
       if message.chat.id in config.sendas_rights:
         return True
       else:
-        self.bot.send_message(message.chat.id, "Ты недостаточно прав, вот когда будешь достаточно прав -- тогда и будет тебе щастье © 2006, Рыся", reply_to_message_id=message.message_id)
+        reply(self.bot, message, "txt", "Ты недостаточно прав, вот когда будешь достаточно прав -- тогда и будет тебе щастье © 2006, Рыся")
         return False
     else:
       return False
@@ -115,7 +115,7 @@ class BotFunc():
     spl = message.text.split()
     if len(spl) < 2: return
     if not spl[0] in config.sendas_aliases:
-      self.bot.send_message(message.chat.id, "Неизвестный идентификатор %s" % spl[0], reply_to_message_id=message.message_id)
+      reply(self.bot, message, "txt", "Неизвестный идентификатор %s" % spl[0])
     else:
       try:
         self.bot.send_message(config.sendas_aliases[spl[0]], " ".join(spl[1:]))
@@ -146,6 +146,6 @@ class BotFunc():
   def autoreply(self, message):
     rule = config.autoreply_rules[self.last_autoreply_match]
     if rule["reply_type"] == "text":
-      self.bot.send_message(message.chat.id, rule["reply_content"], reply_to_message_id=message.message_id)
+      reply(self.bot, message, "txt", rule["reply_content"])
     elif rule["reply_type"] == "picture":
       send_saved_pic(self.bot, rule["reply_content"], message)

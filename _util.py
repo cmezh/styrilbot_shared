@@ -4,17 +4,17 @@ import config
 import os, sys
 from requests import get, head
 from json import loads
+from telebot.apihelper import ApiException as TelegramException
 
 def dbg(msg):
   if config.debug: print("--- %s" % msg)
 
 def sendmedia(bot, media, message):
   dbg("send_img function entrypoint")
-  cid = message.chat.id
   if message.reply_to_message:
-    msgid = message.reply_to_message.message_id
+    repl = message.reply_to_message
   else:
-    msgid = message.message_id
+    repl = message
   url = media[0]
   ext = media[1]
 
@@ -24,27 +24,24 @@ def sendmedia(bot, media, message):
     h.write(resp)
   if ext == "gif":
     dbg("Sending gif as document")
-    bot.send_document(cid, open("tmp." + ext, "rb"), reply_to_message_id=msgid)
+    reply(bot, repl, "doc", open("tmp." + ext, "rb"))
   elif ext == "mp4":
     dbg("Sending mp4 as video")
-    bot.send_video(cid, open("tmp." + ext, "rb"), reply_to_message_id=msgid)
+    reply(bot, repl, "vid", open("tmp." + ext, "rb"))
   else:
     dbg("Sending whatever it is as photo")
-    bot.send_photo(cid, open("tmp." + ext, "rb"), reply_to_message_id=msgid)
+    reply(bot, repl, "pic", open("tmp." + ext, "rb"))
   dbg("Removing temp file")
   os.remove("tmp." + ext)
 
 def send_saved_pic(bot, url, message):
-  cid = message.chat.id
-  msgid = message.message_id
   fname = url.split("/")[-1]
 
   if not os.path.exists(fname):
     with open(fname, "wb") as h:
       resp = get(url).content
       h.write(resp)
-
-  bot.send_photo(cid, open(fname, "rb"), reply_to_message_id=msgid)
+  reply(bot, message, "pic", open(fname, "rb"))
 
 def mediamatch(url):
   dbg("mediamatch function entrypoint")
@@ -75,3 +72,22 @@ def vreddit(url):
     return None
   return url, "mp4"
 
+def reply(bot, message, content_type, content):
+  if content_type == "txt":
+    func = bot.send_message
+  elif content_type == "vid":
+    func = bot.send_video
+  elif content_type == "pic":
+    func = bot.send_photo
+  elif content_type == "doc":
+    func == bot.send_document
+
+  try:
+    dbg("reply 1st stage")
+    func(message.chat.id, content, reply_to_message_id=message.message_id)
+  except TelegramException:
+    try:
+      dbg("reply 2nd stage")
+      func(message.chat.id, content)
+    except TelegramException:
+      pass
