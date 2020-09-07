@@ -74,12 +74,12 @@ class BotFunc():
 
   def com_me(self, message):
     dbg("Got me command")
-    if len(message.text.split(" ")) > 1:
+    if len(message.text.split()) > 1:
       rpl = message.reply_to_message
       try:
         self.bot.delete_message(message.chat.id, message.message_id)
         sender = "%s %s" % (message.from_user.first_name, message.from_user.last_name) if message.from_user.last_name else message.from_user.first_name
-        msg = "* %s %s" % (sender, " ".join(message.text.split(" ")[1:]))
+        msg = "* %s %s" % (sender, " ".join(message.text.split()[1:]))
         if rpl:
           reply(self.bot, rpl, "txt", msg)
         else:

@@ -154,7 +154,7 @@ class RedditWrapper:
 
   def process(self, command):
     dbg("Processing command")
-    args = command.split(" ")
+    args = command.split()
     if len(args) == 1:
       dbg("No subreddit name given")
       raise RedditException("No subreddit name given")
